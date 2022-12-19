@@ -23,7 +23,15 @@ export class Tutor {
       sunday: { type: [Number] },
     }),
   )
-  availableTime: Record<string, number[]>;
+  availableTime: {
+    monday: number[];
+    tuesday: number[];
+    wednesday: number[];
+    thursday: number[];
+    friday: number[];
+    saturday: number[];
+    sunday: number[];
+  };
 
   @Prop({ type: [Types.ObjectId], ref: Course.name })
   courses: Course[];

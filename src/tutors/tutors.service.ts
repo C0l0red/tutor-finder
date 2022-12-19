@@ -3,6 +3,7 @@ import {
   ConflictException,
   ForbiddenException,
   Injectable,
+  NotFoundException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Tutor, TutorDocument } from './schemas/tutor.schema';
@@ -44,7 +45,9 @@ export class TutorsService {
 
     await this.usersService.addTutorId(user, tutor._id);
 
-    return tutor;
+    return this.tutorModel.findOne({ _id: tutor._id }, undefined, {
+      populate: 'user',
+    });
   }
 
   async update(updateTutorDto: UpdateTutorDto, user: User) {
@@ -60,6 +63,7 @@ export class TutorsService {
     return this.tutorModel.findOneAndUpdate(
       { user: new Types.ObjectId(user._id) },
       updateTutorDto,
+      { populate: 'user' },
     );
   }
 
@@ -90,5 +94,12 @@ export class TutorsService {
       });
 
     return null;
+  }
+
+  async findById(tutorId: string) {
+    return this.tutorModel.findById(tutorId).then((tutor) => {
+      if (!tutor) throw new NotFoundException('Tutor not found');
+      return tutor;
+    });
   }
 }
