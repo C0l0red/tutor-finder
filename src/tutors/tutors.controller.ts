@@ -2,9 +2,11 @@ import {
   Body,
   Controller,
   Get,
+  Param,
   Patch,
   Post,
   Query,
+  Req,
   UseGuards,
 } from '@nestjs/common';
 import { TutorsService } from './tutors.service';
@@ -50,5 +52,13 @@ export class TutorsController {
     const data = await this.tutorsService.findAll(user, tutorListFilterDto);
 
     return { message: 'Tutors fetched successfully', data };
+  }
+
+  @UseGuards(JwtAuthGuard)
+  @Get(':tutorId')
+  async findOne(@Param('tutorId') tutorId: string) {
+    const data = await this.tutorsService.findById(tutorId);
+
+    return { message: 'Tutor fetched successfully', data };
   }
 }

@@ -72,11 +72,13 @@ export class TutorsService {
       throw new ForbiddenException();
 
     if (tutorListFilterDto.course)
-      return this.tutorModel.find({
-        courses: { $in: [new Types.ObjectId(tutorListFilterDto.course)] },
-      });
+      return this.tutorModel
+        .find({
+          courses: { $in: [new Types.ObjectId(tutorListFilterDto.course)] },
+        })
+        .populate('user');
 
-    return this.tutorModel.find();
+    return this.tutorModel.find().populate(['user', 'courses']);
   }
 
   private async verifyAccountTypeAndGetCourseIds(
@@ -97,9 +99,12 @@ export class TutorsService {
   }
 
   async findById(tutorId: string) {
-    return this.tutorModel.findById(tutorId).then((tutor) => {
-      if (!tutor) throw new NotFoundException('Tutor not found');
-      return tutor;
-    });
+    return this.tutorModel
+      .findById(tutorId)
+      .populate(['user', 'courses'])
+      .then((tutor) => {
+        if (!tutor) throw new NotFoundException('Tutor not found');
+        return tutor;
+      });
   }
 }
