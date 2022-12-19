@@ -3,6 +3,7 @@ import { UsersService } from '../../users/users.service';
 import { JwtService } from '@nestjs/jwt';
 import { JwtPayloadDto } from '../dto/jwt-payload.dto';
 import { User } from '../../users/schemas/user.schema';
+import { AccountType } from '../../users/enums/account-type.enum';
 
 @Injectable()
 export class AuthService {
@@ -34,6 +35,7 @@ export class AuthService {
         lastName: user.lastName,
         email: user.email,
         accountType: user.accountType,
+        tutor: user.accountType === AccountType.TUTOR ? user.tutor : undefined,
       },
     };
   }

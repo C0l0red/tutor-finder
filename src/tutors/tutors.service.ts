@@ -13,12 +13,14 @@ import { CoursesService } from '../courses/courses.service';
 import { UpdateTutorDto } from './dto/update-tutor.dto';
 import { AccountType } from '../users/enums/account-type.enum';
 import { TutorListFilterDto } from './dto/tutor-list-filter.dto';
+import { UsersService } from '../users/users.service';
 
 @Injectable()
 export class TutorsService {
   constructor(
     @InjectModel(Tutor.name) private readonly tutorModel: Model<TutorDocument>,
     private readonly coursesService: CoursesService,
+    private readonly usersService: UsersService,
   ) {}
 
   async create(createTutorDto: CreateTutorDto, user: User) {
@@ -34,11 +36,15 @@ export class TutorsService {
           throw new ConflictException('You already have a tutor profile');
       });
 
-    return this.tutorModel.create({
+    const tutor = await this.tutorModel.create({
       ...createTutorDto,
       courses: courseIds,
       user: new Types.ObjectId(user._id),
     });
+
+    await this.usersService.addTutorId(user, tutor._id);
+
+    return tutor;
   }
 
   async update(updateTutorDto: UpdateTutorDto, user: User) {

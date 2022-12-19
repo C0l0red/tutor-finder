@@ -10,6 +10,7 @@ import { Model, Types } from 'mongoose';
 import { CreateUserDto } from './dto/create-user.dto';
 import * as bcrypt from 'bcrypt';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { AccountType } from './enums/account-type.enum';
 
 @Injectable()
 export class UsersService {
@@ -27,6 +28,8 @@ export class UsersService {
     const newUser = { ...createUserDto } as User;
 
     newUser.password = await this.hashPassword(createUserDto.password);
+
+    if (createUserDto.accountType === AccountType.TUTOR) newUser.tutor = null;
 
     const user = await this.userModel.create(newUser);
 
@@ -68,7 +71,10 @@ export class UsersService {
   async findOne() {}
 
   async findByEmail(email: string) {
-    return this.userModel.findOne({ email }).select('+password');
+    return this.userModel
+      .findOne({ email })
+      .select('+password')
+      .populate('tutor');
   }
 
   async findById(userId: string, includePassword = false) {
@@ -97,5 +103,12 @@ export class UsersService {
   async hashPassword(password: string) {
     const saltOrRounds = 10;
     return bcrypt.hash(password, saltOrRounds);
+  }
+
+  async addTutorId(user: User, tutorId: string) {
+    await this.userModel.updateOne(
+      { _id: new Types.ObjectId(user._id) },
+      { tutor: tutorId },
+    );
   }
 }
