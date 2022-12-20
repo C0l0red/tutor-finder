@@ -107,4 +107,11 @@ export class TutorsService {
         return tutor;
       });
   }
+
+  async findByUserId(userId: Types.ObjectId) {
+    return this.tutorModel.findOne({ user: userId }).then((tutor) => {
+      if (!tutor) throw new NotFoundException('Tutor not found');
+      return tutor;
+    });
+  }
 }

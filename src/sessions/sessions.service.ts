@@ -47,9 +47,10 @@ export class SessionsService {
 
   async findAll(user: User) {
     const userId = new Types.ObjectId(user._id);
+
     const filter =
       user.accountType === AccountType.TUTOR
-        ? { tutor: userId }
+        ? { tutor: (await this.tutorsService.findByUserId(userId))._id }
         : { student: userId };
 
     return this.sessionModel.find(filter).populate(['student', 'tutor']);
